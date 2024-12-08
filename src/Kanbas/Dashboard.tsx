@@ -19,7 +19,7 @@ export default function Dashboard(
   const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [refreshFlag, setRefreshFlag] = useState(false);
-  const isFaculty = currentUser?.role === "FACULTY";
+  const isFaculty = currentUser?.role === "FACULTY" || currentUser.role === 'ADMIN';
   const fetchEnrolledCourses = async () => {
     try {
       const enrolledCourses = await userClient.findMyCourses();

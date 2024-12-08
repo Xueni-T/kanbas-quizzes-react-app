@@ -14,7 +14,7 @@ export default function EachAssignControl({
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   return (
     <div id="wd-assignments-controls" className="text-nowrap d-flex align-items-center">
-      {currentUser?.role === "FACULTY" && (
+      {currentUser?.role === "FACULTY" || currentUser.role === 'ADMIN' && (
         <>
           <FaTrash className="text-danger me-4 fs-4" data-bs-toggle="modal" data-bs-target="#wd-add-assignment-dialog"
             onClick={() => setAssignmentToDelete(assignmentId)} />

@@ -42,11 +42,19 @@ export const createAssignmentForCourse = async (courseId: string, assignment: an
   );
   return response.data;
 };
-
 export function findAllCourses() {
   throw new Error("Function not implemented.");
 }
 export const findUsersForCourse = async (courseId: string) => {
   const response = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/users`);
+  return response.data;
+};
+export const findQuizzesForCourse = async (courseId: string) => {
+  const response = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/quizzes`);
+  return response.data;
+};
+// createQuizForCourse
+export const createQuizForCourse = async (courseId: string, quiz: any) => {
+  const response = await axiosWithCredentials.post(`${COURSES_API}/${courseId}/quizzes`, quiz);
   return response.data;
 };

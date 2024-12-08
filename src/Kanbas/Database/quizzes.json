@@ -1,0 +1,41 @@
+[
+  {
+    "_id": "1",
+    "title": "Quiz 1",
+    "course": "RS101",
+    "dateAvailable": "2023-10-01",
+    "timeAvailable": "10:00",
+    "dueDate": "2023-10-10",
+    "dueTime": "23:59",
+    "points": 100,
+    "numQuestions":16,
+    "description": "This is the first quiz.",
+    "published": true
+  },
+  {
+    "_id": "2",
+    "title": "Quiz 2",
+    "course": "RS101",
+    "dateAvailable": "2023-10-05",
+    "timeAvailable": "10:00",
+    "dueDate": "2023-10-15",
+    "dueTime": "23:59",
+    "points": 100,
+    "numQuestions":16,
+    "description": "This is the second quiz.",
+    "published": false
+  },
+  {
+    "_id": "3",
+    "title": "Quiz 3",
+    "course": "RS101",
+    "dateAvailable": "2023-10-10",
+    "timeAvailable": "10:00",
+    "dueDate": "2023-10-20",
+    "dueTime": "23:59",
+    "points": 100,
+    "numQuestions":16,
+    "description": "This is the third quiz.",
+    "published": true
+  }
+]
