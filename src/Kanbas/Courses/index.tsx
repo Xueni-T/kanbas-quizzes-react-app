@@ -9,6 +9,7 @@ import { FaAlignJustify } from "react-icons/fa";
 import People from "./people";
 import Quizzes from "./Quizzes";
 import QuizDetails from "./Quizzes/QuizDetails";
+import QuizView from "./Quizzes/Preview";
 //import DetailsEditor from "./Quizzes/DetailsEditor";
 import EditorTabs from "./Quizzes/EditorTabs";
 export default function Courses({ courses }: { courses: any[]; }) {
@@ -35,6 +36,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
             <Route path="People" element={<People />} />
             <Route path="Quizzes" element={<Quizzes />} />
+            <Route path="Quizzes/:qid/preview" element={<QuizView />} />
             <Route path="Quizzes/new" element={<EditorTabs />} />
             <Route path="Quizzes/:qid" element={<QuizDetails />} />
             <Route path="Quizzes/:qid/edit" element={<EditorTabs />} />

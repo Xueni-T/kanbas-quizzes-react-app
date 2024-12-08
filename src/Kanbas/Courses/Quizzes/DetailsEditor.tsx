@@ -16,7 +16,6 @@ export default function QuizEditor() {
         const fetchQuiz = async () => {
             if (qid) {
                 const fetchedQuiz = await quizzesClient.getQuiz(qid);
-                console.log(fetchedQuiz);
                 setQuiz(fetchedQuiz);
             }
             else {

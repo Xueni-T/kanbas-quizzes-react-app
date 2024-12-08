@@ -24,14 +24,14 @@ export const getQuizzes = async (courseId: string) => {
     return data;
 }
 
-export const findQuestionsForQuiz = async (quizId: string) => {
+/*export const findQuestionsForQuiz = async (quizId: string) => {
     const response = await axiosWithCredentials.get(`${QUIZ_API}/${quizId}/questions`);
     return response.data;
 };
 export const createQuestionForQuiz = async (quizId: string, question: any) => {
     const response = await axiosWithCredentials.post(`${QUIZ_API}/${quizId}/questions`, question);
     return response.data;
-};
+};*/
 
 export const newAttempt = async (quizId: string, userId: string) => {
     const { data } = await axiosWithCredentials.post(`${QUIZ_API}/${quizId}/user/${userId}/answers`);

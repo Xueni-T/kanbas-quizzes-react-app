@@ -9,6 +9,7 @@ import LessonControlButtons from './LessonControlButtons';
 import { BsGripVertical } from 'react-icons/bs';
 import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
+
 export default function Modules() {
   const { cid } = useParams();
   const [moduleName, setModuleName] = useState("");
@@ -31,6 +32,7 @@ export default function Modules() {
     await modulesClient.deleteModule(moduleId);
     dispatch(deleteModule(moduleId));
   };
+  
   const saveModule = async (module: any) => {
     await modulesClient.updateModule(module);
     dispatch(updateModule(module));
