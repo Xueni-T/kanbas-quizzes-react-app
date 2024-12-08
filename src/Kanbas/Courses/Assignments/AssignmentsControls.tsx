@@ -23,7 +23,7 @@ export default function AssignmentsControls() {
           aria-label="Search"
         />
       </div>
-      {currentUser?.role === "FACULTY" || currentUser.role === 'ADMIN' && (
+      {(currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN") && (
         <>
           <div className="d-flex">
             <button id="wd-add-group-btn" className="btn btn-lg btn-secondary me-2">

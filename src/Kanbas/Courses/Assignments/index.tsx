@@ -46,7 +46,7 @@ export default function Assignments() {
                   <EachAssignHead />
                   <div className="flex-grow-1 ms-4">
                     <p className="wd-each-assign-list-item mb-0">
-                      {currentUser?.role === 'FACULTY' ? (
+                      {(currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN") ? (
                         <Link to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`} className="wd-assignment-link custom-link fs-4">
                           {assignment.title}
                         </Link>
@@ -72,10 +72,10 @@ export default function Assignments() {
                 </li>
               ))}
           </ul>
-            <DeleteEachAssign
-              dialogTitle="Delete Assignment"
-              assignmentId={assignmentToDelete}
-            />
+          <DeleteEachAssign
+            dialogTitle="Delete Assignment"
+            assignmentId={assignmentToDelete}
+          />
         </li>
       </ul>
     </div>
