@@ -54,11 +54,12 @@ export default function QuizEditor() {
                 dispatch(addQuiz(savedQuiz));
             }
             dispatch(addQuiz(newQuiz));
+            navigate(`/Kanbas/Courses/${cid}/Quizzes/${newQuiz._id}`);
         } else {
             const updatedQuiz = await quizzesClient.updateQuiz(quiz);
             dispatch(updateQuiz(updatedQuiz));
+            navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`);
         }
-        navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`);
     };
 
     const handleInputChange = (field: string, value: any) => {
