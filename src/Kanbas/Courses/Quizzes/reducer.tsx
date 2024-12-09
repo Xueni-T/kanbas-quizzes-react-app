@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { quizzes } from "../../Database";
+//import { quizzes } from "../../Database";
 const initialState = {
-  quizzes: quizzes
+  quizzes: [],
 };
 const quizzesSlice = createSlice({
   name: "quizzes",
@@ -28,16 +28,7 @@ const quizzesSlice = createSlice({
         a._id === quiz._id ? quiz : a
       ) as any;
     },
-    publish: (state, { payload: quiz }) => {
-      state.quizzes = state.quizzes.map((q: any) =>
-        q._id === quiz._id ? { ...q, published: true } : q
-      )
-    },
-    unPublish: (state, { payload: quiz }) => {
-      state.quizzes = state.quizzes.map((q: any) =>
-        q._id === quiz._id ? { ...q, published: false } : q
-      )
-    },
+    
     cancelUpdate: (state, { payload: quizId }) => {
       state.quizzes = state.quizzes.map((a: any) =>
         a._id === quizId ? { ...a, editing: false } : a
@@ -50,5 +41,5 @@ const quizzesSlice = createSlice({
     },
   }
 });
-export const { setQuizzes, addQuiz, deleteQuiz, updateQuiz, publish, unPublish, cancelUpdate, editQuiz } = quizzesSlice.actions;
+export const { setQuizzes, addQuiz, deleteQuiz, updateQuiz, cancelUpdate, editQuiz } = quizzesSlice.actions;
 export default quizzesSlice.reducer;

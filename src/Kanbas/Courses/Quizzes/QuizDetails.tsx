@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 interface Quiz {
@@ -42,6 +42,7 @@ interface RootState {
 
 export default function QuizDetails() {
   const { qid } = useParams<{ qid: string }>();
+  const { cid } = useParams<{ cid: string }>();
   const { currentUser } = useSelector((state: RootState) => state.accountReducer);
   const { quizzes } = useSelector((state: RootState) => state.quizzesReducer);
 
@@ -73,8 +74,12 @@ export default function QuizDetails() {
     <div>
       <h3 className="mt-2 mb-4 ms-3">{quiz.title}</h3>
       <div className="ms-3 mb-3">
+      <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/preview`}>
         <button className="btn btn-secondary me-2">Preview</button>
-        <button className="btn btn-secondary">Edit</button>
+        </Link>
+        <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/edit`}>
+            <button className="btn btn-secondary">Edit</button>
+        </Link>
       </div>
       <hr className="ms-3 me-3"/>
       <div className="ms-3 me-3">

@@ -76,8 +76,8 @@ export default function QuestionEditor() {
       console.error("Error updating question:", error);
     }
   };
-  
-  const handleAddPossibleAnswer = (questionId: string) => {
+
+  const handleAddCorrectAnswer = (questionId: string) => {
     // Find the question to update
     const questionToUpdate = questions.find((q: any) => q._id === questionId);
     if (!questionToUpdate) {
@@ -87,13 +87,28 @@ export default function QuestionEditor() {
     // Add a new empty answer
     const updatedQuestion = {
       ...questionToUpdate,
-      choicesAnswers: [...questionToUpdate.choicesAnswers, ""], // Add new blank answer
+      correctAnswers: [...questionToUpdate.correctAnswers, ""], // Add new blank answer
     };
     // Dispatch the updated question to Redux
     dispatch(updateQuestion(updatedQuestion));
   };
 
-  const handleDeletePossibleAnswer = (questionId: string, answerIndex: number) => {
+  const handleAddChoicesAnswer = (questionId: string) => {
+    const questionToUpdate = questions.find((q: any) => q._id === questionId);
+    if (!questionToUpdate) {
+      console.error("Question not found.");
+      return;
+    }
+    const updatedQuestion = {
+      ...questionToUpdate,
+      choicesAnswers: [...questionToUpdate.choicesAnswers, ""],
+    };
+    // Dispatch the updated question to Redux
+    dispatch(updateQuestion(updatedQuestion));
+  };
+
+  const handleDeleteCorrectAnswer = async (questionId: string, answerIndex: number) => {
+    console.log("handleDeletePossibleAnswer called with:", questionId, answerIndex);
     // Find the question to update
     const questionToUpdate = questions.find((q: any) => q._id === questionId);
     if (!questionToUpdate) {
@@ -101,17 +116,56 @@ export default function QuestionEditor() {
       return;
     }
 
+    console.log("Question to update:", questionToUpdate);
+    console.log("Current correctAnswers:", questionToUpdate.correctAnswers);
+
     // Remove the answer at the specified index
-    const updatedChoices = questionToUpdate.choicesAnswers.filter((_:any, index:any) => index !== answerIndex);
+    const updatedCorrectAnswers = questionToUpdate.correctAnswers.filter((_: any, index: any) => index !== answerIndex);
+    console.log("Updated choices:", updatedCorrectAnswers);
+
     // Update the question in Redux
-    const updatedQuestion = { ...questionToUpdate, choicesAnswers: updatedChoices };
+    const updatedQuestion = { ...questionToUpdate, correctAnswers: updatedCorrectAnswers };
     dispatch(updateQuestion(updatedQuestion));
+    console.log("Updated question dispatched:", updatedQuestion);
+
+    // Make an API call to save the updated question to the backend
+    try {
+      await questionClient.updateQuestion(updatedQuestion);
+      console.log("Question updated on the backend successfully.");
+    } catch (error) {
+      console.error("Failed to update the question on the backend:", error);
+    }
   };
-  
-  
-  
-  
-  
+
+  const handleDeleteChoicesAnswer = async (questionId: string, answerIndex: number) => {
+    console.log("handleDeletePossibleAnswer called with:", questionId, answerIndex);
+    // Find the question to update
+    const questionToUpdate = questions.find((q: any) => q._id === questionId);
+    if (!questionToUpdate) {
+      console.error("Question not found.");
+      return;
+    }
+
+    console.log("Question to update:", questionToUpdate);
+    console.log("Current correctAnswers:", questionToUpdate.correctAnswers);
+
+    // Remove the answer at the specified index
+    const updatedChoicesAnswers = questionToUpdate.choicesAnswers.filter((_: any, index: any) => index !== answerIndex);
+    console.log("Updated choices:", updatedChoicesAnswers);
+
+    // Update the question in Redux
+    const updatedQuestion = { ...questionToUpdate, choicesAnswers: updatedChoicesAnswers };
+    dispatch(updateQuestion(updatedQuestion));
+    console.log("Updated question dispatched:", updatedQuestion);
+
+    // Make an API call to save the updated question to the backend
+    try {
+      await questionClient.updateQuestion(updatedQuestion);
+      console.log("Question updated on the backend successfully.");
+    } catch (error) {
+      console.error("Failed to update the question on the backend:", error);
+    }
+  };
 
   return (
     <div className="wd-question-editor">
@@ -176,15 +230,16 @@ export default function QuestionEditor() {
                 </div>
 
                 <div className="form-group mb-3">
-                  <label className="form-label"><b>Possible Answers</b></label>
+                  <label className="form-label"><b>Correct Answers</b></label>
                   <button
-                        type="button"
-                        className="btn btn-outline-secondary mt-2"
-                        onClick={() => handleAddPossibleAnswer(question._id)}
-                      >
-                        <FaPlus /> Add Answer
+                    type="button"
+                    className="btn btn-outline-secondary mt-2"
+                    style={{ marginLeft: '20px', marginBottom: '10px', color: 'black' }}
+                    onClick={() => handleAddCorrectAnswer(question._id)}
+                  >
+                    <FaPlus /> Add
                   </button>
-                  {question.choicesAnswers.map((choice: any, cIndex: number) => (
+                  {question.correctAnswers.map((choice: any, cIndex: number) => (
                     <div
                       key={cIndex}
                       className={`input-group mb-2 ${question.correctAnswers.includes(choice) ? "correct-answer" : ""}`}
@@ -195,7 +250,45 @@ export default function QuestionEditor() {
                         placeholder="Answer"
                         value={choice}
                         onChange={(e) => {
-                          const updatedChoices = question.choicesAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
+                          const updatedChoices = question.correctAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
+                          dispatch(updateQuestion({ ...question, correctAnswers: updatedChoices }));
+                        }}
+                      />
+
+                      {/* Trash Icon to Remove every possible answer */}
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        onClick={() => handleDeleteCorrectAnswer(question._id, cIndex)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {question?.questionType === "Multiple Choice" && (
+                  <div className="form-group mb-3">
+                    <label className="form-label"><b>Possible Answers</b></label>
+                    <button
+                    type="button"
+                    className="btn btn-outline-secondary mt-2"
+                    style={{ marginLeft: '20px', marginBottom: '10px', color: 'black' }}
+                    onClick={() => handleAddChoicesAnswer(question._id)}
+                  >
+                    <FaPlus /> Add
+                  </button>
+                    {question.choicesAnswers.map((choice: any, cIndex: number) => (
+                      <div
+                        key={cIndex}
+                        className={`input-group mb-2 ${question.choicesAnswers.includes(choice) ? "possible-answer" : ""}`}
+                      >
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Answer"
+                          value={choice}
+                          onChange={(e) => {
+                            const updatedChoices = question.choicesAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
                             dispatch(updateQuestion({ ...question, choicesAnswers: updatedChoices }));
                           }}
                         />
@@ -204,71 +297,14 @@ export default function QuestionEditor() {
                         <button
                           type="button"
                           className="btn btn-danger"
-                          onClick={() => handleDeletePossibleAnswer(question._id, cIndex)}
+                          onClick={() => handleDeleteChoicesAnswer(question._id, cIndex)}
                         >
                           <FaTrash />
                         </button>
-
-            
-                    </div>
-                  ))}
-
-                  
-                
-                  
-                  {question?.type === "true-false" && (
-                    <div>
-                      <div className="form-check">
-                        <input
-                          id="wd-question-true-input"
-                          className="form-check-input"
-                          type="checkbox"
-                          onChange={() => {/* handler fuction */ }}
-                        />
-                        <label className="form-check-label" htmlFor="wd-question-true-input">
-                          True
-                        </label>
                       </div>
-                      <div className="form-check">
-                        <input
-                          id="wd-question-false-input"
-                          className="form-check-input"
-                          type="checkbox"
-                          onChange={() => {/* handler fuction */ }}
-                        />
-                        <label className="form-check-label" htmlFor="wd-question-false-input">
-                          False
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                  {question?.type === "fill-in-the-blank" && question.choices.map((choice: any) => (
-                    <div key={choice} className="input-group mb-2">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Correct Answer"
-                        value={choice}
-                        onChange={() => {/* handler fuction */ }}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-danger"
-                        onClick={() => {/* handler fuction */ }}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  ))}
-                  {(question?.type === "multiple-choice" || question?.type === "fill-in-the-blank") && (
-                    <a onClick={() => {/* handler fuction */ }}
-                      className="float-end text-danger text-decoration-none d-flex align-items-center"
-                      style={{ cursor: "pointer" }}>
-                      <FaPlus className="me-2" />
-                      Add Another Answer
-                    </a>
-                  )}
-                </div>
+                    ))}
+
+                  </div>)}
                 <br /><hr />
                 <div className="d-flex justify-content-start">
                   <button type="button" className="btn btn-light border texxt-secondary me-2" onClick={() => setEditingPencil(null)}>
