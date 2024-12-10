@@ -10,7 +10,7 @@ import People from "./people";
 import Quizzes from "./Quizzes";
 import QuizDetails from "./Quizzes/QuizDetails";
 import QuizView from "./Quizzes/Preview";
-//import DetailsEditor from "./Quizzes/DetailsEditor";
+import SubmittedQuiz from "./Quizzes/SubmittedQuiz";
 import EditorTabs from "./Quizzes/EditorTabs";
 export default function Courses({ courses }: { courses: any[]; }) {
   const { cid } = useParams();
@@ -40,7 +40,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <Route path="Quizzes/new" element={<EditorTabs />} />
             <Route path="Quizzes/:qid" element={<QuizDetails />} />
             <Route path="Quizzes/:qid/edit" element={<EditorTabs />} />
-            {/*<Route path="Quizzes/:qid/edit/details" element={<DetailsEditor />} />*/}
+            <Route path="Quizzes/:qid/submitted" element={<SubmittedQuiz />} />
           </Routes>
         </div>
       </div>

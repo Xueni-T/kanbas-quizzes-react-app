@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addQuiz, updateQuiz, cancelUpdate } from "./reducer";
 import * as coursesClient from "../client";
 import * as quizzesClient from "./client";
+import Editor from 'react-simple-wysiwyg';
 export default function QuizEditor() {
     const { cid, qid } = useParams();
     const navigate = useNavigate();
@@ -119,11 +120,9 @@ export default function QuizEditor() {
             <div className="row mb-3">
                 <div className="col">
                     <label htmlFor="wd-description">Quiz Description</label>
-                    <textarea
+                    <Editor
                         id="wd-description"
                         className="form-control mt-2"
-                        rows={6}
-                        cols={50}
                         value={quiz?.description || ""}
                         onChange={(e) => handleInputChange("description", e.target.value)}
                     />

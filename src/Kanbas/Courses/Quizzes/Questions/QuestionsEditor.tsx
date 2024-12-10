@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import * as questionClient from "./client";
 import { setQuestions, deleteQuestion, updateQuestion } from "./reducer";
-
+import Editor from 'react-simple-wysiwyg';
 export default function QuestionEditor() {
   const { cid, qid } = useParams();
   const dispatch = useDispatch();
@@ -221,12 +221,12 @@ export default function QuestionEditor() {
                 </div>
                 <div className="form-group mb-3">
                   <label className="form-label" htmlFor="question-text"><b>Question</b></label>
-                  <textarea
+                  <Editor
                     className="form-control"
                     id="question-text"
                     value={question?.questionText || ""}
                     onChange={(e) => dispatch(updateQuestion({ ...question, questionText: e.target.value }))}
-                  ></textarea>
+                  />
                 </div>
 
                 <div className="form-group mb-3">
@@ -270,28 +270,41 @@ export default function QuestionEditor() {
                   <div className="form-group mb-3">
                     <label className="form-label"><b>Possible Answers</b></label>
                     <button
-                    type="button"
-                    className="btn btn-outline-secondary mt-2"
-                    style={{ marginLeft: '20px', marginBottom: '10px', color: 'black' }}
-                    onClick={() => handleAddChoicesAnswer(question._id)}
-                  >
-                    <FaPlus /> Add
-                  </button>
+                      type="button"
+                      className="btn btn-outline-secondary mt-2"
+                      style={{ marginLeft: '20px', marginBottom: '10px', color: 'black' }}
+                      onClick={() => handleAddChoicesAnswer(question._id)}
+                    >
+                      <FaPlus /> Add
+                    </button>
+                    <p>Select one as the single correct answer</p>
                     {question.choicesAnswers.map((choice: any, cIndex: number) => (
                       <div
                         key={cIndex}
                         className={`input-group mb-2 ${question.choicesAnswers.includes(choice) ? "possible-answer" : ""}`}
                       >
-                        <input
-                          type="text"
+                        <textarea
                           className="form-control"
-                          placeholder="Answer"
+                          placeholder="Option"
                           value={choice}
                           onChange={(e) => {
                             const updatedChoices = question.choicesAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
                             dispatch(updateQuestion({ ...question, choicesAnswers: updatedChoices }));
                           }}
                         />
+
+                        {/* Radio Button to Select Correct Answer */}
+                        <div className="input-group-text">
+                          <input
+                            type="radio"
+                            name={`correct-answer-${question._id}`}
+                            checked={question.correctAnswers.includes(choice)}
+                            onChange={() => {
+                              const updatedCorrectAnswers = [choice];
+                              dispatch(updateQuestion({ ...question, correctAnswers: updatedCorrectAnswers }));
+                            }}
+                          />
+                        </div>
 
                         {/* Trash Icon to Remove every possible answer */}
                         <button

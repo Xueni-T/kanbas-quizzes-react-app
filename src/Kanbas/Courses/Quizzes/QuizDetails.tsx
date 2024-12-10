@@ -64,7 +64,9 @@ export default function QuizDetails() {
     return (
       <div>
         <h3 className="mt-2 mb-4 ms-3">{quiz.title}</h3>
-        <button className="btn btn-danger ms-3">Begin Quiz</button>
+        <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/preview`}>
+          <button className="btn btn-danger ms-3">Begin Quiz</button>
+        </Link>
       </div>
     );
   }
