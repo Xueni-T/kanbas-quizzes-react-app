@@ -14,19 +14,8 @@ export default function SubmittedQuiz() {
   const [answers, setAnswers] = useState<{ [key: string]: any }>({});
   const [answer, setAnswer] = useState<any>(null);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-
-  const navigate = useNavigate();
-  const handleSubmitQuiz = async () => {
-    let result = null;
-    if (qid) {
-      if (result) {
-        navigate(`/Kanbas/Courses/${cid}/Quizzes`);
-      } else {
-        console.error("Error submitting quiz");
-        return;
-      }
-    }
-  };
+  const [earnedScore, setEarnedScore] = useState<number>(0);
+  const [totalScore, setTotalScore] = useState<number>(0);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -71,6 +60,26 @@ export default function SubmittedQuiz() {
     fetchAnswers();
   }, [qid, currentUser._id, questions]);
 
+  useEffect(() => {
+    // Calculate total scores once questions and answers are available
+    if (questions.length > 0) {
+      let totalEarned = 0;
+      let totalPossible = 0;
+
+      questions.forEach((question) => {
+        const isCorrect = question.correctAnswers
+          .map((ans: string) => ans.toLowerCase())
+          .includes(answers[question._id]?.toLowerCase());
+        const pointsAwarded = isCorrect ? question.points : 0;
+        totalEarned += pointsAwarded;
+        totalPossible += question.points;
+      });
+
+      setEarnedScore(totalEarned);
+      setTotalScore(totalPossible);
+    }
+  }, [questions, answers]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -79,20 +88,20 @@ export default function SubmittedQuiz() {
     return <div>Quiz not found</div>;
   }
 
+
   const renderQuestion = (question: any, index: number) => {
     if (!question) {
       return <p className="unknown-type">Question data is missing</p>;
     }
+  
     return (
       <div key={question._id} className="question-card">
         <div className="question-header">
           <div className="question-title">Question {index + 1}</div>
-
           <div className="question-points">{(question.correctAnswers.map((ans: string) => ans.toLowerCase()).includes(answers[question._id]?.toLowerCase())) ?
             `${question.points} / ${question.points}` :
             `0 / ${question.points}`} pts</div>
         </div>
-
         <p className="question-text">
           {question.questionText || "No question text available"}
         </p>
@@ -205,9 +214,10 @@ export default function SubmittedQuiz() {
 
   return (
     <div className="quiz-container">
+      
       <h1 className="quiz-title">{quiz.title}</h1>
       <p className="quiz-description">{quiz.description}</p>
-      <h3>Grade: {answer && answer.score}/{quiz.points}</h3>
+      <h3>Grade: {earnedScore}/{totalScore}</h3>
       <hr className="quiz-divider" />
 
       {quiz.oneQuestionAtATime ? (

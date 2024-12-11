@@ -52,3 +52,7 @@ export const getAnswers = async (quizId: string, userId: string) => {
     const { data } = await axiosWithCredentials.get(`${QUIZ_API}/${quizId}/user/${userId}/answers`);
     return data;
 }
+export const getAnswerForQuestion = async (quizId: string, userId: string, questionId: string) => {
+    const { data } = await axiosWithCredentials.get(`${QUIZ_API}/${quizId}/user/${userId}/answers/${questionId}`);
+    return data;
+}

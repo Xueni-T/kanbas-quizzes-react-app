@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import * as quizClient from "./client";
 
 interface Quiz {
   _id?: string;
@@ -45,22 +46,43 @@ export default function QuizDetails() {
   const { cid } = useParams<{ cid: string }>();
   const { currentUser } = useSelector((state: RootState) => state.accountReducer);
   const { quizzes } = useSelector((state: RootState) => state.quizzesReducer);
-
   const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [answers, setAnswers] = useState<any>(null);
+  const [accessCode, setAccessCode] = useState<string>("");
 
   useEffect(() => {
-    if (qid && quizzes) {
-      const foundQuiz = quizzes.find((q) => q._id === qid);
-      setQuiz(foundQuiz || null);
+    const fetchQuiz = async () => {
+      if (qid) {
+        const fetchedQuiz = await quizClient.getQuiz(qid);
+        setQuiz(fetchedQuiz);
+      }
+    };
+    const fetchAnswers = async () => {
+      if (qid && currentUser._id) {
+        const fetchedAnswers = await quizClient.getAnswers(qid, currentUser._id);
+        setAnswers(fetchedAnswers);
+      }
     }
-  }, [qid, quizzes]);
+    fetchQuiz();
+    fetchAnswers();
+  }, [qid, currentUser._id]);
 
   if (!quiz) {
     return <div className="m-3">No quiz found with ID {qid}</div>;
   }
 
-  // If student, just show Begin Quiz button
-  if (currentUser.role !== "FACULTY") {
+  // If student, just show Begin Quiz button (not faculty or admin)
+  if (currentUser.role !== "FACULTY" && currentUser.role !== "ADMIN") {
+    const studentAttempts = answers?.attempt ?? 0;
+    console.log("Student attempts:", studentAttempts);
+    if (!quiz.multipleAttempts && studentAttempts > 0 || studentAttempts >= (quiz.howManyAttempts ?? 1)) {
+      return (
+        <div>
+          <h3 className="mt-2 mb-4 ms-3">{quiz.title}</h3>
+          <p className="ms-3">You have reached the maximum number of attempts for this quiz.</p>
+        </div>
+      );
+    }
     return (
       <div>
         <h3 className="mt-2 mb-4 ms-3">{quiz.title}</h3>
@@ -76,21 +98,21 @@ export default function QuizDetails() {
     <div>
       <h3 className="mt-2 mb-4 ms-3">{quiz.title}</h3>
       <div className="ms-3 mb-3">
-      <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/preview`}>
-        <button className="btn btn-secondary me-2">Preview</button>
+        <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/preview`}>
+          <button className="btn btn-secondary me-2">Preview</button>
         </Link>
         <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/edit`}>
-            <button className="btn btn-secondary">Edit</button>
+          <button className="btn btn-secondary">Edit</button>
         </Link>
       </div>
-      <hr className="ms-3 me-3"/>
+      <hr className="ms-3 me-3" />
       <div className="ms-3 me-3">
 
         <div className="row mb-2">
           <div className="col-3 text-end"><strong>Quiz Type</strong></div>
           <div className="col-9">{quiz.type || "Graded Quiz"}</div>
         </div>
-        
+
         <div className="row mb-2">
           <div className="col-3 text-end"><strong>Points</strong></div>
           <div className="col-9">{quiz.points ?? 0}</div>
@@ -150,13 +172,16 @@ export default function QuizDetails() {
 
         <div className="row mb-2">
           <div className="col-3 text-end"><strong>Due Date</strong></div>
-          <div className="col-9">{quiz.dueDate || ""}</div>
+          <div className="col-9">{quiz.dueDate ? new Date(quiz.dueDate).toLocaleString('en-US',
+            { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : ""}</div>
         </div>
 
         <div className="row mb-2">
           <div className="col-3 text-end"><strong>Available</strong></div>
           <div className="col-9">
-            from {quiz.availableDate || "{available date}"} until {quiz.untilDate || "{close date}"}
+            From {quiz.availableDate ? new Date(quiz.availableDate).toLocaleString('en-US',
+              { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : ""} <span>Until</span> {quiz.untilDate ? new Date(quiz.untilDate).toLocaleString('en-US',
+                { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : ""}
           </div>
         </div>
       </div>

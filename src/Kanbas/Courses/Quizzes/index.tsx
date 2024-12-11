@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import QuizControlButtons from "./QuizControlButtons";
 import * as quizzesClient from "./client";
 import * as coursesClient from "../client";
+import * as questionsClient from "./Questions/client";
 import { setQuizzes } from "./reducer";
 import { useEffect } from "react";
 
@@ -22,8 +23,13 @@ export default function Quizzes() {
   const fetchQuizzes = async () => {
     try {
       const quizzes = await coursesClient.findQuizzesForCourse(cid as string);
+      // Fetch questions for each quiz (for counting the number of questions)
+      const quizzesWithQuestions = await Promise.all(quizzes.map(async (quiz: any) => {
+        const questions = await questionsClient.findQuestionsForQuiz(quiz._id);
+        return { ...quiz, questions };
+      }));
       console.log("Fetched quizzes:", quizzes); // Logs the fetched quizzes
-      dispatch(setQuizzes(quizzes));
+      dispatch(setQuizzes(quizzesWithQuestions));
     } catch (error) {
       console.error("Error fetching quizzes:", error); // Logs any errors
     }
@@ -33,6 +39,7 @@ export default function Quizzes() {
     console.log("cid value:", cid);
     fetchQuizzes();
   }, [cid]);
+
 
   return (
     <div id="wd-quizzes" className="m-5">
@@ -77,12 +84,11 @@ export default function Quizzes() {
               className="wd-quiz-list-item list-group-item p-3 ps-1 fs-5"
             >
               <div className="row align-items-center">
-                <div className="col-1">
-
+                <div className="col-1 text-center">
                   <RxRocket className="text-success" />
                 </div>
                 <div className="col-9">
-                  {currentUser.role === "STUDENT" && !quiz.published ? (
+                  {currentUser.role === "STUDENT" && (!quiz.published || new Date() < new Date(quiz.availableDate) || new Date() > new Date(quiz.untilDate)) ? (
                     <span className="wd-quiz-link text-dark">{quiz.title}</span>
                   ) : (
                     <a
@@ -96,16 +102,18 @@ export default function Quizzes() {
                   <span className="fs-6 text-wrap">
                     {new Date() > new Date(quiz.availableDate) ? (
                       new Date() < new Date(quiz.untilDate) ? (
-                        <strong>Available </strong>
+                        <strong className="text-danger">Available </strong>
                       ) : (
                         <strong>Closed </strong>
                       )
                     ) : (
                       <strong>Not available until </strong>
                     )}
-                    {quiz.availableDate} | <strong>Due </strong>
-                    {quiz.dueDate} |
-                    {quiz.points} pts | {quiz.numberOfQuestions} Questions
+                    {new Date(quiz.availableDate).toLocaleString('en-US',
+                      { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })} | <strong>Due </strong>
+                    {new Date(quiz.dueDate).toLocaleString('en-US',
+                      { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })} | {quiz.points} pts
+                    | {quiz.questions?.length || 0} Questions
                   </span>
                 </div>
                 <div className="col-2">

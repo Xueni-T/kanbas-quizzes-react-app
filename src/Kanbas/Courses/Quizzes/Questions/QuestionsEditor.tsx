@@ -51,9 +51,9 @@ export default function QuestionEditor() {
     }
   };
 
-  const handleInputChange = async (field: string, value: any, question: any) => {
+  /*const handleInputChange = async (field: string, value: any, question: any) => {
     setEditingQuestion({ ...question, [field]: value });
-  };
+  };*/
 
   const handleUpdateQuestion = async (questionId: string, updatedFields: any) => {
     try {
@@ -166,9 +166,21 @@ export default function QuestionEditor() {
       console.error("Failed to update the question on the backend:", error);
     }
   };
-
+  // Sum points of all questions
+  const sumPoints = () => {
+    let total = 0;
+    questions.forEach((question: any) => {
+      total += Number(question.points) || 0;
+    });
+    return total;
+  };
   return (
     <div className="wd-question-editor">
+      <div className="text-end">
+        <h5 className="mb-0">
+          Points: <strong>{sumPoints()}</strong>
+        </h5>
+      </div>
       {/* List of Questions */}
       <ul className="wd-question-list list-group mt-3">
         {questions.map((question: any) => (
@@ -194,7 +206,7 @@ export default function QuestionEditor() {
                     onChange={(e) => dispatch(updateQuestion({ ...question, title: e.target.value }))}
                   />
                 </div>
-                <div className="form-group mb-3 d-flex justify-content-between">
+                <div className="form-group mb-3">
                   <div className="w-50">
                     <label className="form-label" htmlFor="question-type"><b>Question Type</b></label>
                     <select
@@ -208,7 +220,10 @@ export default function QuestionEditor() {
                       <option value="Fill in the Blank">Fill in the Blank</option>
                     </select>
                   </div>
-                  <div className="w-25">
+
+                </div>
+                <div className="form-group mb-3">
+                  <div className="w-50">
                     <label className="form-label" htmlFor="question-points"><b>Points</b></label>
                     <input
                       type="number"
@@ -228,99 +243,170 @@ export default function QuestionEditor() {
                     onChange={(e) => dispatch(updateQuestion({ ...question, questionText: e.target.value }))}
                   />
                 </div>
-
-                <div className="form-group mb-3">
-                  <label className="form-label"><b>Correct Answers</b></label>
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary mt-2"
-                    style={{ marginLeft: '20px', marginBottom: '10px', color: 'black' }}
-                    onClick={() => handleAddCorrectAnswer(question._id)}
-                  >
-                    <FaPlus /> Add
-                  </button>
-                  {question.correctAnswers.map((choice: any, cIndex: number) => (
-                    <div
-                      key={cIndex}
-                      className={`input-group mb-2 ${question.correctAnswers.includes(choice) ? "correct-answer" : ""}`}
-                    >
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Answer"
-                        value={choice}
-                        onChange={(e) => {
-                          const updatedChoices = question.correctAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
-                          dispatch(updateQuestion({ ...question, correctAnswers: updatedChoices }));
-                        }}
-                      />
-
-                      {/* Trash Icon to Remove every possible answer */}
-                      <button
-                        type="button"
-                        className="btn btn-danger"
-                        onClick={() => handleDeleteCorrectAnswer(question._id, cIndex)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                {question?.questionType === "Multiple Choice" && (
+                {question?.questionType === "Fill in the Blank" && (
                   <div className="form-group mb-3">
-                    <label className="form-label"><b>Possible Answers</b></label>
+
+                    <label className="form-label"><b>Correct Answers</b></label>
                     <button
                       type="button"
                       className="btn btn-outline-secondary mt-2"
                       style={{ marginLeft: '20px', marginBottom: '10px', color: 'black' }}
-                      onClick={() => handleAddChoicesAnswer(question._id)}
+                      onClick={() => handleAddCorrectAnswer(question._id)}
                     >
                       <FaPlus /> Add
                     </button>
-                    <p>Select one as the single correct answer</p>
-                    {question.choicesAnswers.map((choice: any, cIndex: number) => (
+                    {question.correctAnswers.map((choice: any, cIndex: number) => (
                       <div
                         key={cIndex}
-                        className={`input-group mb-2 ${question.choicesAnswers.includes(choice) ? "possible-answer" : ""}`}
+                        className={`input-group mb-2 ${question.correctAnswers.includes(choice) ? "correct-answer" : ""}`}
                       >
-                        <textarea
+                        <input
+                          type="text"
                           className="form-control"
-                          placeholder="Option"
+                          placeholder="Answer"
                           value={choice}
                           onChange={(e) => {
-                            const updatedChoices = question.choicesAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
-                            dispatch(updateQuestion({ ...question, choicesAnswers: updatedChoices }));
+                            const updatedChoices = question.correctAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
+                            dispatch(updateQuestion({ ...question, correctAnswers: updatedChoices }));
                           }}
                         />
 
-                        {/* Radio Button to Select Correct Answer */}
-                        <div className="input-group-text">
-                          <input
-                            type="radio"
-                            name={`correct-answer-${question._id}`}
-                            checked={question.correctAnswers.includes(choice)}
-                            onChange={() => {
-                              const updatedCorrectAnswers = [choice];
-                              dispatch(updateQuestion({ ...question, correctAnswers: updatedCorrectAnswers }));
-                            }}
-                          />
-                        </div>
-
-                        {/* Trash Icon to Remove every possible answer */}
+                        {/* Trash Icon to Remove answer */}
                         <button
                           type="button"
                           className="btn btn-danger"
-                          onClick={() => handleDeleteChoicesAnswer(question._id, cIndex)}
+                          onClick={() => handleDeleteCorrectAnswer(question._id, cIndex)}
                         >
                           <FaTrash />
                         </button>
                       </div>
                     ))}
+                  </div>
+                )}
 
-                  </div>)}
+                {question?.questionType === "True/False" && (
+                  <div className="form-group mb-3">
+                    <label className="form-label"><b>Correct Answer</b></label>
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id={`true-answer-${question._id}`}
+                        checked={question.correctAnswers.includes("True")}
+                        onChange={(e) => {
+                          const updatedCorrectAnswers = e.target.checked
+                            ? ["True"] // Only "True" is correct
+                            : [];
+                          dispatch(updateQuestion({ ...question, correctAnswers: updatedCorrectAnswers }));
+                        }}
+                      />
+                      <label className="form-check-label" htmlFor={`true-answer-${question._id}`}>True</label>
+                    </div>
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id={`false-answer-${question._id}`}
+                        checked={question.correctAnswers.includes("False")}
+                        onChange={(e) => {
+                          const updatedCorrectAnswers = e.target.checked
+                            ? ["False"] // Only "False" is correct
+                            : [];
+                          dispatch(updateQuestion({ ...question, correctAnswers: updatedCorrectAnswers }));
+                        }}
+                      />
+                      <label className="form-check-label" htmlFor={`false-answer-${question._id}`}>False</label>
+                    </div>
+                  </div>
+                )}
+
+
+
+
+                {question?.questionType === "Multiple Choice" && (
+                  <div className="form-group mb-3">
+                    <div className="form-group">
+                      <label className="form-label"><b>Correct Answer</b></label>
+                      {question.correctAnswers.map((choice: any, cIndex: number) => (
+                        <div
+                          key={cIndex}
+                          className={`input-group mb-2 ${question.correctAnswers.includes(choice) ? "correct-answer" : ""}`}
+                        >
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Answer"
+                            value={choice}
+                            onChange={(e) => {
+                              const updatedChoices = question.correctAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
+                              dispatch(updateQuestion({ ...question, correctAnswers: updatedChoices }));
+                            }}
+                            disabled
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => handleDeleteCorrectAnswer(question._id, cIndex)}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label"><b>Possible Answers</b></label>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary mt-2"
+                        style={{ marginLeft: '20px', marginBottom: '10px', color: 'black' }}
+                        onClick={() => handleAddChoicesAnswer(question._id)}
+                      >
+                        <FaPlus /> Add
+                      </button>
+                      <p>Select one as the single correct answer</p>
+                      {question.choicesAnswers.map((choice: any, cIndex: number) => (
+                        <div
+                          key={cIndex}
+                          className={`input-group mb-2 ${question.choicesAnswers.includes(choice) ? "possible-answer" : ""}`}
+                        >
+                          <textarea
+                            className="form-control"
+                            placeholder="Option"
+                            value={choice}
+                            onChange={(e) => {
+                              const updatedChoices = question.choicesAnswers.map((c: any, i: number) => i === cIndex ? e.target.value : c);
+                              dispatch(updateQuestion({ ...question, choicesAnswers: updatedChoices }));
+                            }}
+                          />
+                          {/* Radio Button to Select Correct Answer */}
+                          <div className="input-group-text">
+                            <input
+                              type="radio"
+                              name={`correct-answer-${question._id}`}
+                              checked={question.correctAnswers.includes(choice)}
+                              onChange={() => {
+                                const updatedCorrectAnswers = [choice];
+                                dispatch(updateQuestion({ ...question, correctAnswers: updatedCorrectAnswers }));
+                              }}
+                            />
+                          </div>
+
+                          {/* Trash Icon to Remove every possible answer */}
+                          <button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => handleDeleteChoicesAnswer(question._id, cIndex)}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <br /><hr />
                 <div className="d-flex justify-content-start">
-                  <button type="button" className="btn btn-light border texxt-secondary me-2" onClick={() => setEditingPencil(null)}>
+                  <button type="button" className="btn btn-secondary me-2" onClick={() => setEditingPencil(null)}>
                     Cancel
                   </button>
                   <button type="button" className="btn btn-danger" onClick={() => handleUpdateQuestion(question._id, editingQuestion)}>
@@ -332,8 +418,8 @@ export default function QuestionEditor() {
           </li>
         ))}
       </ul>
-      <div className="text-center mt-3">
-        <button className="btn btn-lg btn-secondary" onClick={handleAddNewQuestion}>
+      <div className="text-center">
+        <button className="btn btn-secondary me-2" onClick={handleAddNewQuestion}>
           <FaPlus className="position-relative me-2" style={{ bottom: "1px" }} />
           New Question
         </button>
@@ -343,11 +429,13 @@ export default function QuestionEditor() {
         <hr />
         <div className="d-flex float-end">
           <Link to={`/Kanbas/Courses/${cid}/Quizzes`}>
-            <button className="btn btn-light border text-secondary mx-1">Cancel</button>
+            <button className="btn btn-secondary me-2">Cancel</button>
           </Link>
-          <button type="button" className="btn btn-danger border border-dark mx-1">
-            Save
-          </button>
+          <Link to={`/Kanbas/Courses/${cid}/Quizzes`}>
+            <button type="button" className="btn btn-danger mx-1">
+              Save
+            </button>
+          </Link>
         </div>
       </div>
     </div>

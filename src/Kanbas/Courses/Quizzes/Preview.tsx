@@ -4,7 +4,7 @@ import * as quizClient from "./client";
 import * as questionClient from "./Questions/client";
 import "./QuizView.css";
 import { useSelector } from "react-redux";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function QuizView() {
   const { qid, cid } = useParams();
@@ -13,7 +13,7 @@ export default function QuizView() {
   const [loading, setLoading] = useState<boolean>(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-
+  let totalScore = 0;
   const navigate = useNavigate();
   const handleSubmitQuiz = async () => {
     let result = null;
@@ -28,17 +28,17 @@ export default function QuizView() {
     }
   };
 
-const handleInputChange = (
+  const handleInputChange = (
     e: React.ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
-) => {
+  ) => {
     const { name, value } = e.target;
     const answerUpdate = { questionId: name, updateAnswer: value };
     if (qid) {
-        quizClient.addAnswerToMap(qid, currentUser._id, answerUpdate);
+      quizClient.addAnswerToMap(qid, currentUser._id, answerUpdate);
     }
-};
+  };
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -82,7 +82,7 @@ const handleInputChange = (
     if (!question) {
       return <p className="unknown-type">Question data is missing</p>;
     }
-
+    
     return (
       <div key={question._id} className="question-card">
         <div className="question-header">
@@ -98,21 +98,21 @@ const handleInputChange = (
               return (
                 <ul className="options-list">
                   {(quiz.shuffleAnswers ? question.choicesAnswers.sort(() => Math.random() - 0.5) : question.choicesAnswers)
-                  .map((choice: string, index: number) => (
-                  <li
-                  key={`${question._id}-choice-${index}`}
-                  className="option-item"
-                  >
-                  <input onChange={handleInputChange}
-                    type="radio"
-                    name={question._id}
-                    id={`option-${index}`}
-                    value={choice}
-                    className="radio-input"
-                  />
-                  <label htmlFor={`option-${index}`}>{choice}</label>
-                  </li>
-                  ))}
+                    .map((choice: string, index: number) => (
+                      <li
+                        key={`${question._id}-choice-${index}`}
+                        className="option-item"
+                      >
+                        <input onChange={handleInputChange}
+                          type="radio"
+                          name={question._id}
+                          id={`option-${index}`}
+                          value={choice}
+                          className="radio-input"
+                        />
+                        <label htmlFor={`option-${index}`}>{choice}</label>
+                      </li>
+                    ))}
                 </ul>
               );
             case "True/False":
@@ -161,11 +161,11 @@ const handleInputChange = (
 
   return (
     <div className="quiz-container">
-        <div className="quiz-header">
-      <h1 className="quiz-title">{quiz.title}</h1>
-      <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/Edit`} className="action-button update-button">
-      Edit Quiz
-      </Link>
+      <div className="quiz-header">
+        <h1 className="quiz-title">{quiz.title}</h1>
+        {currentUser.role === "FACULTY" && (<Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/Edit`} className="action-button update-button">
+          Edit Quiz
+        </Link>)}
       </div>
       <p className="quiz-instructions">{quiz.description}</p>
       <hr className="quiz-divider" />
@@ -174,6 +174,7 @@ const handleInputChange = (
         <div>
           {currentQuestion ? (
             renderQuestion(currentQuestion, currentQuestionIndex)
+            
           ) : (
             <p className="unknown-type">No question available</p>
           )}
