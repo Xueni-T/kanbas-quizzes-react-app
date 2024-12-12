@@ -24,14 +24,29 @@ export const getQuizzes = async (courseId: string) => {
     return data;
 }
 
-/*export const findQuestionsForQuiz = async (quizId: string) => {
-    const response = await axiosWithCredentials.get(`${QUIZ_API}/${quizId}/questions`);
-    return response.data;
-};
-export const createQuestionForQuiz = async (quizId: string, question: any) => {
-    const response = await axiosWithCredentials.post(`${QUIZ_API}/${quizId}/questions`, question);
-    return response.data;
-};*/
+export async function calculateScore(qid: string, userId: string) {
+    try {
+        const response = await axios.post(`/api/quizzes/${qid}/calculateScore`, {
+            userId: userId,
+        });
+        return response.data.score;
+    } catch (error) {
+        console.error("Error calculating score:", error);
+        return null;
+    }
+}
+export async function updateQuizScore(qid: string, userId: string, score: number) {
+    try {
+        const response = await axios.put(`/api/quizzes/${qid}/updateScore`, {
+            userId: userId,
+            score: score,
+        });
+        return response.data.success;
+    } catch (error) {
+        console.error("Error updating quiz score:", error);
+        return false;
+    }
+}
 
 export const newAttempt = async (quizId: string, userId: string) => {
     const { data } = await axiosWithCredentials.post(`${QUIZ_API}/${quizId}/user/${userId}/answers`);

@@ -4,6 +4,7 @@ import * as quizClient from "./client";
 import * as questionClient from "./Questions/client";
 import "./QuizView.css";
 import { useSelector } from "react-redux";
+import {Link} from "react-router-dom"
 
 export default function SubmittedQuiz() {
   const { qid, cid } = useParams();
@@ -74,7 +75,7 @@ export default function SubmittedQuiz() {
         totalEarned += pointsAwarded;
         totalPossible += question.points;
       });
-
+     
       setEarnedScore(totalEarned);
       setTotalScore(totalPossible);
     }
@@ -144,21 +145,22 @@ export default function SubmittedQuiz() {
               case "True/False":
                 return (
                   <ul className="options-list">
-                    {["true", "false"].map((option) => {
-                      const isCorrect = question.correctAnswers.includes(option);
-                      const isSelected = answers[question._id]?.toLowerCase() === option;
-              
+                    {["true", "false"].map((choice) => {
+                      const lowercasedCorrcetAnswers = question.correctAnswers.map((ans: string) => ans.toLowerCase());
+                      const isCorrect = lowercasedCorrcetAnswers.includes(choice.toLowerCase());
+                      const isSelected = answers[question._id]?.toLowerCase() === choice.toLowerCase();
+                      console.log(isSelected, isCorrect);
                       return (
-                        <li className="option-item" key={option}>
+                        <li className="option-item" key={choice}>
                           <input
                             type="radio"
                             name={question._id}
-                            value={option}
+                            value={choice}
                             className="radio-input"
                             checked={isSelected}
                             disabled
                           />
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                          {choice.charAt(0).toUpperCase() + choice.slice(1)}
                           {isSelected && !isCorrect && (
                             <>
                               <span className="correct-arrow" style={{ color: "red" }}>✘</span>
@@ -249,6 +251,9 @@ export default function SubmittedQuiz() {
           {questions.map((question, index) => renderQuestion(question, index))}
         </div>
       )}
+      <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}`}>
+                <button className="action-button update-button mt-3">Go Back</button>
+      </Link>
     </div>
   );
 }

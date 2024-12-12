@@ -113,7 +113,7 @@ export default function Quizzes() {
                       { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })} | <strong>Due </strong>
                     {new Date(quiz.dueDate).toLocaleString('en-US',
                       { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })} | {quiz.points} pts
-                    | {quiz.questions?.length || 0} Questions
+                    | <b>{quiz.questions?.length || 0}</b> Questions
                   </span>
                 </div>
                 <div className="col-2">

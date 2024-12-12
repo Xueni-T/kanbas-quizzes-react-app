@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as quizClient from "./client";
-
+import * as questionClient from "./Questions/client";
+import SubmittedQuiz from "./SubmittedQuiz";
 interface Quiz {
   _id?: string;
   title?: string;
@@ -49,6 +50,7 @@ export default function QuizDetails() {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [answers, setAnswers] = useState<any>(null);
   const [accessCode, setAccessCode] = useState<string>("");
+  const [questions, setQuestions] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -57,6 +59,7 @@ export default function QuizDetails() {
         setQuiz(fetchedQuiz);
       }
     };
+
     const fetchAnswers = async () => {
       if (qid && currentUser._id) {
         const fetchedAnswers = await quizClient.getAnswers(qid, currentUser._id);
@@ -65,22 +68,32 @@ export default function QuizDetails() {
     }
     fetchQuiz();
     fetchAnswers();
-  }, [qid, currentUser._id]);
+  }, [qid, currentUser._id, questions]);
 
   if (!quiz) {
     return <div className="m-3">No quiz found with ID {qid}</div>;
   }
 
-  // If student, just show Begin Quiz button (not faculty or admin)
+  // If STUDENT, just show Begin Quiz button (not faculty or admin)
   if (currentUser.role !== "FACULTY" && currentUser.role !== "ADMIN") {
     const studentAttempts = answers?.attempt ?? 0;
-    console.log("Student attempts:", studentAttempts);
     if (!quiz.multipleAttempts && studentAttempts > 0 || studentAttempts >= (quiz.howManyAttempts ?? 1)) {
       return (
         <div>
           <h3 className="mt-2 mb-4 ms-3">{quiz.title}</h3>
           <p className="ms-3">You have reached the maximum number of attempts for this quiz.</p>
+          {answers && (
+            <div className="ms-3">
+              <h4>Last Attempt</h4>
+              <p><b>Last Attempt Date</b>: {answers.attemptDate ? new Date(answers.attemptDate).toLocaleString('en-US',
+                { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : ""}</p>
+              <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/submitted`}>
+                <button className="btn btn-danger me-2">View Last Attempt</button>
+              </Link>
+            </div>
+          )}
         </div>
+
       );
     }
     return (
@@ -89,7 +102,18 @@ export default function QuizDetails() {
         <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/preview`}>
           <button className="btn btn-danger ms-3">Begin Quiz</button>
         </Link>
+        {answers && (
+          <div className="ms-3">
+            <h4>Last Attempt</h4>
+            <p><b>Last Attempt Date</b>: {answers.attemptDate ? new Date(answers.attemptDate).toLocaleString('en-US',
+              { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : ""}</p>
+            <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/submitted`}>
+              <button className="btn btn-danger me-2">View Last Attempt</button>
+            </Link>
+          </div>
+        )}
       </div>
+
     );
   }
 
@@ -185,6 +209,16 @@ export default function QuizDetails() {
           </div>
         </div>
       </div>
+      {answers && (
+        <div className="ms-3">
+          <h4>Last Attempt</h4>
+          <p><b>Last Attempt Date</b>: {answers.attemptDate ? new Date(answers.attemptDate).toLocaleString('en-US',
+            { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : ""}</p>
+          <Link to={`/Kanbas/Courses/${cid}/Quizzes/${qid}/submitted`}>
+            <button className="btn btn-danger me-2">View Last Attempt</button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,14 +13,14 @@ export default function QuizView() {
   const [loading, setLoading] = useState<boolean>(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  let totalScore = 0;
+
   const navigate = useNavigate();
   const handleSubmitQuiz = async () => {
     let result = null;
     if (qid) {
       result = await quizClient.submitQuiz(qid, currentUser._id);
       if (result) {
-        navigate(`/Kanbas/Courses/${cid}/Quizzes`);
+        navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/submitted`);
       } else {
         console.error("Error submitting quiz");
         return;
