@@ -5,13 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { addQuiz, updateQuiz, cancelUpdate } from "./reducer";
 import * as coursesClient from "../client";
 import * as quizzesClient from "./client";
+import Editor from 'react-simple-wysiwyg';
 export default function QuizEditor() {
     const { cid, qid } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { quizzes } = useSelector((state: any) => state.quizzesReducer);
     const [quiz, setQuiz] = useState<any | null>(null);
-    const [activeTab, setActiveTab] = useState("details");
     useEffect(() => {
         const fetchQuiz = async () => {
             if (qid) {
@@ -39,7 +39,7 @@ export default function QuizEditor() {
                     availableDate: new Date().toISOString(),
                     untilDate: new Date().toISOString(),
                     published: false,
-                    numberOfQuestions: 0,
+
                 });
             }
         };
@@ -47,18 +47,24 @@ export default function QuizEditor() {
     }, [qid]);
 
     const handleSave = async () => {
-        if (!qid) {
-            const newQuiz = { ...quiz, _id: new Date().getTime().toString(), course: cid };
-            if (cid) {
-                const savedQuiz = await coursesClient.createQuizForCourse(cid, newQuiz);
-                dispatch(addQuiz(savedQuiz));
+        try {
+            if (!qid) {
+                // Creating a new quiz
+                const newQuiz = { ...quiz, course: cid };
+                if (cid) {
+                    const savedQuiz = await coursesClient.createQuizForCourse(cid, newQuiz);
+                    dispatch(addQuiz(savedQuiz));
+                    navigate(`/Kanbas/Courses/${cid}/Quizzes/${savedQuiz._id}`);
+                }
+            } else {
+                // Updating an existing quiz
+                const updatedQuiz = await quizzesClient.updateQuiz(quiz);
+                dispatch(updateQuiz(updatedQuiz));
+                navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`);
             }
-            dispatch(addQuiz(newQuiz));
-            navigate(`/Kanbas/Courses/${cid}/Quizzes/${newQuiz._id}`);
-        } else {
-            const updatedQuiz = await quizzesClient.updateQuiz(quiz);
-            dispatch(updateQuiz(updatedQuiz));
-            navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`);
+        } catch (error) {
+            console.error("Error saving quiz:", error);
+            // Handle the error appropriately, e.g., show a notification to the user
         }
     };
 
@@ -84,6 +90,11 @@ export default function QuizEditor() {
             dispatch(updateQuiz(updatedQuizResponse)); // Ensure reducer handles undefined values
         }
         navigate(`/Kanbas/Courses/${cid}/Quizzes`);
+    };
+    const formatDate = (dateString: any) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().slice(0, 16);
     };
 
     return (
@@ -119,11 +130,9 @@ export default function QuizEditor() {
             <div className="row mb-3">
                 <div className="col">
                     <label htmlFor="wd-description">Quiz Description</label>
-                    <textarea
+                    <Editor
                         id="wd-description"
                         className="form-control mt-2"
-                        rows={6}
-                        cols={50}
                         value={quiz?.description || ""}
                         onChange={(e) => handleInputChange("description", e.target.value)}
                     />
@@ -364,7 +373,7 @@ export default function QuizEditor() {
                                         type="datetime-local"
                                         id="wd-due-date"
                                         className="form-control"
-                                        value={quiz?.dueDate || ""}
+                                        value={formatDate(quiz?.dueDate) || ""}
                                         onChange={(e) => handleInputChange("dueDate", e.target.value)}
                                     />
                                 </div>
@@ -375,7 +384,7 @@ export default function QuizEditor() {
                                             type="datetime-local"
                                             id="wd-available-from"
                                             className="form-control"
-                                            value={quiz?.availableDate || ""}
+                                            value={formatDate(quiz?.availableDate) || ""}
                                             onChange={(e) => handleInputChange("availableDate", e.target.value)}
                                         />
                                     </div>
@@ -385,7 +394,7 @@ export default function QuizEditor() {
                                             type="datetime-local"
                                             id="wd-available-until"
                                             className="form-control"
-                                            value={quiz?.untilDate || ""}
+                                            value={formatDate(quiz?.untilDate) || ""}
                                             onChange={(e) => handleInputChange("untilDate", e.target.value)}
                                         />
                                     </div>

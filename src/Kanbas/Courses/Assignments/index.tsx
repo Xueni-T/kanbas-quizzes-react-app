@@ -56,12 +56,12 @@ export default function Assignments() {
                       <div className='fs-5'>
                         <span className="text-danger">Multiple Modules</span> <span>| </span>
                         <strong>Due</strong> {new Date(assignment.dueDate).toLocaleString('en-US',
-                          { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+                          { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
                         <span> | </span> {assignment.points} pts </div>
                       <strong>Not available until</strong> {new Date(assignment.availableDate).toLocaleString('en-US',
-                        { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+                        { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
                       <span> | </span> <strong>Available until</strong> {new Date(assignment.untilDate).toLocaleString('en-US',
-                        { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+                        { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
                     </p>
                   </div>
                   <EachAssignControl
